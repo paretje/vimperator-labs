@@ -90,7 +90,7 @@ const Hints = Module("hints", {
 
     _resetInput: function() {
         this._hintNumber = null;         // only the numerical part of the hint
-        this._hintChars = "";
+        this._hintChars = "";            // only the character part of the hint
         this._usedTabKey = false;        // when we used <Tab> to select an element
         this._prevInput = "";            // record previous user input type, "text" || "number"
     },
@@ -458,6 +458,7 @@ const Hints = Module("hints", {
                 let hintnumchars = this._num2chars(hintnum);
                 let display = valid && (
                     this._hintNumber === null ||
+                    // TODO: I guess this means it's impossible to first select a hint, and then continue typing starting from that hint? So it should probably be optional?
                     hintnumchars.indexOf(String(this._hintChars)) == 0
                 );
 
@@ -578,6 +579,7 @@ const Hints = Module("hints", {
         let hintchars = options.hintchars;
         let chars = "";
         let base = hintchars.length;
+        // TODO: make this optional
         for (let i = 0; i < this._hintLength; i++) {
             chars += hintchars[((num % base))];
             num = Math.floor(num / base);
@@ -591,6 +593,7 @@ const Hints = Module("hints", {
         let hintchars = options.hintchars;
         let base = hintchars.length;
         for (let i = 0, l = chars.length; i < l; ++i) {
+            // TODO: make this optional
             num += Math.pow(base, i) * hintchars.indexOf(chars[i]);
         }
         return num;
@@ -661,6 +664,7 @@ const Hints = Module("hints", {
     _checkUnique: function () {
         if (
             this._hintNumber === null ||
+            // TODO: I'm not sure if this even makes sense when not using numbers in general?
             // TODO: this changed upstream, maybe things will work now with it
             // this._hintNumber === 0 ||
             this._hintNumber > this._validHints.length
@@ -670,6 +674,7 @@ const Hints = Module("hints", {
 
         // if we write a numeric part like 3, but we have 45 hints, only follow
         // the hint after a timeout, as the user might have wanted to follow link 34
+        // TODO: make this test optional
         if (this._hintChars.length < this._hintLength) {
             let timeout = options.hinttimeout;
             if (timeout > 0)
@@ -1077,6 +1082,7 @@ const Hints = Module("hints", {
            return;
 
         default:
+            // TODO: make this optional
             if (this._hintNumber === null) {
                 this._usedTabKey = false;
             }
