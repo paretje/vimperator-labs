@@ -90,6 +90,7 @@ const Hints = Module("hints", {
 
     _resetInput: function() {
         this._hintNumber = null;         // only the numerical part of the hint
+        this._hintChars = "";
         this._usedTabKey = false;        // when we used <Tab> to select an element
         this._prevInput = "";            // record previous user input type, "text" || "number"
     },
@@ -445,6 +446,10 @@ const Hints = Module("hints", {
             if (offsetX === null && offsetY === null)
                 continue;
 
+        if (!this._hintNumber) {
+            this._hintLength = Math.ceil(Math.log(end + 1)/Math.log(options.hintchars.length));
+        }
+
         inner:
             for (let i in (util.interruptibleRange(start, end + 1, 500))) {
                 let hint = this._pageHints[i];
@@ -453,7 +458,7 @@ const Hints = Module("hints", {
                 let hintnumchars = this._num2chars(hintnum);
                 let display = valid && (
                     this._hintNumber === null ||
-                    hintnumchars.indexOf(String(activeHintChars)) == 0
+                    hintnumchars.indexOf(String(this._hintChars)) == 0
                 );
 
                 hint.span.style.display = (display ? "" : "none");
@@ -573,10 +578,10 @@ const Hints = Module("hints", {
         let hintchars = options.hintchars;
         let chars = "";
         let base = hintchars.length;
-        do {
-            chars = hintchars[((num % base))] + chars;
+        for (let i = 0; i < this._hintLength; i++) {
+            chars += hintchars[((num % base))];
             num = Math.floor(num / base);
-        } while (num > 0);
+        }
 
         return chars;
     },
@@ -586,7 +591,7 @@ const Hints = Module("hints", {
         let hintchars = options.hintchars;
         let base = hintchars.length;
         for (let i = 0, l = chars.length; i < l; ++i) {
-            num = base * num + hintchars.indexOf(chars[i]);
+            num += Math.pow(base, i) * hintchars.indexOf(chars[i]);
         }
         return num;
     },
@@ -650,7 +655,6 @@ const Hints = Module("hints", {
     _checkUnique: function () {
         if (
             this._hintNumber === null ||
-            this._hintNumber === this._chars2num(options.hintchars[0]) ||
             this._hintNumber > this._validHints.length
         ) {
             return;
@@ -658,7 +662,7 @@ const Hints = Module("hints", {
 
         // if we write a numeric part like 3, but we have 45 hints, only follow
         // the hint after a timeout, as the user might have wanted to follow link 34
-        if (this._hintNumber > 0 && this._hintNumber * options.hintchars.length <= this._validHints.length) {
+        if (this._hintChars.length < this._hintLength) {
             let timeout = options.hinttimeout;
             if (timeout > 0)
                 this._activeTimeout = this.setTimeout(function () { this._processHints(true); }, timeout);
@@ -1062,13 +1066,11 @@ const Hints = Module("hints", {
            return;
 
         default:
-            if (this._hintNumber !== null) {
-                this._hintNumber = this._chars2num(this._num2chars(this._hintNumber) + key);
-            }
-            else {
+            if (this._hintNumber === null) {
                 this._usedTabKey = false;
-                this._hintNumber = this._chars2num(key);
             }
+            this._hintChars += key;
+            this._hintNumber = this._chars2num(this._hintChars);
             this._prevInput = "number";
 
             let oldHintNumber = this._hintNumber;
