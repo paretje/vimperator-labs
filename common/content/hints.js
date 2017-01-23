@@ -576,6 +576,7 @@ const Hints = Module("hints", {
     },
 
     _num2chars: function (num) {
+        num--;
         let hintchars = options.hintchars;
         let chars = "";
         let base = hintchars.length;
@@ -589,7 +590,7 @@ const Hints = Module("hints", {
     },
 
     _chars2num: function (chars) {
-        let num = 0;
+        let num = 1;
         let hintchars = options.hintchars;
         let base = hintchars.length;
         for (let i = 0, l = chars.length; i < l; ++i) {
@@ -1019,8 +1020,9 @@ const Hints = Module("hints", {
             (key == "<BS>" && hints._prevInput === "number") ||
             (
                 hints._isHintNumber(key) &&
-                !hints.escNumbers &&
-                (key !== options.hintchars[0] || this._prevInput === "number")
+                !hints.escNumbers
+                // TODO: make this optional
+                // (key !== options.hintchars[0] || this._prevInput === "number")
             )
         );
     },
