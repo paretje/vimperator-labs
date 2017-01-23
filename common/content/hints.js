@@ -446,7 +446,7 @@ const Hints = Module("hints", {
             if (offsetX === null && offsetY === null)
                 continue;
 
-        if (!this._hintNumber) {
+        if (!this._hintLength) {
             this._hintLength = Math.ceil(Math.log(end + 1)/Math.log(options.hintchars.length));
         }
 
