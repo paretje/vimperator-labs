@@ -894,6 +894,10 @@ const Hints = Module("hints", {
             };
         }
 
+        function disabledMatcher(linkText) {
+            return true;
+        }
+
         let indexOf = String.indexOf;
         if (options.get("hintmatching").has("transliterated"))
             indexOf = Hints.indexOf;
@@ -903,6 +907,7 @@ const Hints = Module("hints", {
         case "wordstartswith": return wordStartsWithMatcher(hintString, /*allowWordOverleaping=*/ true);
         case "firstletters"  : return wordStartsWithMatcher(hintString, /*allowWordOverleaping=*/ false);
         case "fuzzy"         : return fuzzyMatcher(hintString);
+        case "disable"       : return disabledMatcher;
         case "custom"        : return liberator.plugins.customHintMatcher(hintString);
         default              : liberator.echoerr("Invalid hintmatching type: " + hintMatching);
         }
@@ -1332,6 +1337,7 @@ const Hints = Module("hints", {
                     ["wordstartswith", "The typed characters are split on whitespace. The resulting groups must all match the beginings of words, in order."],
                     ["firstletters",   "Behaves like wordstartswith, but all groups much match a sequence of words."],
                     ["fuzzy",          "Hints are matched according to the fuzzy search algorithm."],
+                    ["disable",        "Hints are only matched according to the hint text."],
                     ["custom",         "Delegate to a custom function: liberator.plugins.customHintMatcher(hintString)"],
                     ["transliterated", "When true, special latin characters are translated to their ascii equivalent (e.g., \u00e9 -> e)"]
                 ]
